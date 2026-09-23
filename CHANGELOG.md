@@ -1,5 +1,10 @@
 # Cambios
 
+## 0.1.3 — 2026-09-23
+
+- `status` dice explícitamente si el consentimiento ya está aceptado, y `/relevo:iniciar` y `/relevo:equipo` solo lo piden si falta (antes Claude podía volver a preguntarlo).
+- Las consultas rápidas a agy (`--version`, `models`) se lanzan desde una carpeta neutra: agy arranca los servidores MCP del usuario incluso para eso, y el de WordPress dejaba `wordpress-mcp.log` en el proyecto.
+
 ## 0.1.2 — 2026-09-23
 
 - **Corrección:** se restaura `disable-model-invocation` en los comandos. Sin esa marca, `/relevo:estado` y compañía se enviaban a Claude como texto en lugar de ejecutarse (comprobado con Claude Code 2.1.275).

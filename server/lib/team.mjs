@@ -238,7 +238,9 @@ export class Team {
     );
     const running = [...this.pending.keys()];
     if (running.length) lines.push(`En curso: ${running.join(', ')}`);
-    if (!this.hasConsent()) {
+    if (this.hasConsent()) {
+      lines.push('Consentimiento sobre las condiciones de Google: ya aceptado ✔ (no vuelvas a preguntarlo).');
+    } else {
       lines.push(
         'CONSENTIMIENTO PENDIENTE: antes de delegar, el usuario debe aceptar el aviso. Relevo lanza el agy oficial con SU sesión de Google; ' +
           'las condiciones de Antigravity prohíben usar su servicio "con productos de terceros" y Google no ha aclarado si esto está permitido: existe riesgo de suspensión de la cuenta. ' +

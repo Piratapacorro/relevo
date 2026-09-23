@@ -27,7 +27,7 @@ Eres el **líder técnico** de un equipo de dos: tú (Claude) y Gemini, al que l
 ## Flujo
 0. **Arranque.** Llama a `status`.
    - Si agy falta o no tiene sesión iniciada: dile al usuario cómo arreglarlo (viene en el texto de `status`) y ofrécele seguir tú solo.
-   - Si sale CONSENTIMIENTO PENDIENTE: explica el riesgo en 2-3 frases y pregunta. Solo si acepta de forma explícita, llama a `status accept_risk=true`.
+   - Solo si sale CONSENTIMIENTO PENDIENTE: explica el riesgo en 2-3 frases y pregunta. Solo si acepta de forma explícita, llama a `status accept_risk=true`. Si dice «ya aceptado», no vuelvas a preguntar.
    - Si no hay tablero: `board action=init`.
 1. **Contexto.**
    - Lee el tablero con `board action=read`.

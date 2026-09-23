@@ -79,8 +79,12 @@ export function agyEnv() {
   };
 }
 
+// agy arranca los servidores MCP del usuario incluso para `models`, y algunos (WordPress)
+// escriben su log en la carpeta actual: las consultas rápidas se lanzan desde una carpeta neutra.
+const NEUTRAL_CWD = os.tmpdir();
+
 export async function agyVersion(bin) {
-  const r = await run(bin, ['--version'], { env: agyEnv(), timeoutMs: 30000 });
+  const r = await run(bin, ['--version'], { cwd: NEUTRAL_CWD, env: agyEnv(), timeoutMs: 30000 });
   const m = /(\d+\.\d+\.\d+)/.exec(`${r.stdout}\n${r.stderr}`);
   return { version: m ? m[1] : null, ok: r.code === 0 && !!m, raw: (r.stdout || r.stderr).trim().slice(0, 200) };
 }
@@ -102,7 +106,7 @@ export function versionAtLeast(v, min) {
  * Ojo: `agy -p "/usage"` NO es gratis en 1.2.8 (lanza un turno del modelo), no lo usamos.
  */
 export async function listModels(bin) {
-  const r = await run(bin, ['models'], { env: agyEnv(), timeoutMs: 90000 });
+  const r = await run(bin, ['models'], { cwd: NEUTRAL_CWD, env: agyEnv(), timeoutMs: 90000 });
   const text = `${r.stdout}\n${r.stderr}`;
   const all = [];
   for (const line of (r.stdout || '').split('\n')) {

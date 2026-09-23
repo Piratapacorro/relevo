@@ -18,7 +18,7 @@ Guía al usuario paso a paso, en lenguaje llano y sin jerga. Claude ya está con
      - Si ya usa la app de Antigravity con esa cuenta, normalmente ya tiene la sesión iniciada.
    - **Sesión de agy no iniciada:** solo el paso de escribir `agy` en una terminal nueva e iniciar sesión.
    - Cuando diga que ya lo ha hecho, vuelve a llamar a `status` para comprobarlo.
-2. **CONSENTIMIENTO PENDIENTE:** explícale esto:
+2. **Solo si `status` dice CONSENTIMIENTO PENDIENTE.** Si dice «ya aceptado», no preguntes nada y pasa al paso 3. Si está pendiente, explícale esto:
    - Relevo usa el agy oficial con su propia sesión y nunca toca contraseñas ni tokens.
    - Las condiciones de Antigravity prohíben usar el servicio «con productos de terceros», y Google no ha aclarado si este caso cuenta. Existe riesgo de que suspendan su cuenta de Google.
    - Alternativa sin ese riesgo: configurar agy con una API key de Google AI Studio.

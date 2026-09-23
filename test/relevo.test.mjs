@@ -423,3 +423,21 @@ test('instalador: añade Relevo a settings.json sin tocar lo demás y con copia 
   assert.throws(() => execFileSync(process.execPath, [path.join(here, '..', 'install.cjs')], { env: { ...process.env, CLAUDE_CONFIG_DIR: cfg2 }, stdio: 'pipe' }));
   assert.equal(fs.readFileSync(path.join(cfg2, 'settings.json'), 'utf8'), '{ esto no es json');
 });
+
+// ---------- v0.1.3 ----------
+
+test('status: las consultas rápidas a agy no se lanzan desde la carpeta del proyecto, y el consentimiento aceptado se dice claro', async () => {
+  const proj = tmp('neutral');
+  const data = tmp('data');
+  const log = path.join(data, 'agy.log');
+  const s = await ready({ CLAUDE_PLUGIN_DATA: data, CLAUDE_PROJECT_DIR: proj, FAKE_AGY_LOG: log });
+  await s.call('status', { accept_risk: true });
+  const calls = fs.readFileSync(log, 'utf8').trim().split('\n').map((l) => JSON.parse(l));
+  const quick = calls.filter((c) => c.args[0] === 'models' || c.args.includes('--version'));
+  assert.ok(quick.length >= 2, 'se consultó versión y modelos');
+  for (const c of quick) assert.notEqual(path.resolve(c.cwd).toLowerCase(), path.resolve(proj).toLowerCase(), `${c.args[0]} no debe correr en el proyecto`);
+  const st = await s.call('status', { check: false });
+  assert.match(st.text, /ya aceptado/);
+  assert.doesNotMatch(st.text, /CONSENTIMIENTO PENDIENTE/);
+  s.close();
+});
