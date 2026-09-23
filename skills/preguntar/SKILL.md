@@ -2,8 +2,11 @@
 name: preguntar
 description: Consulta rápida a Gemini (investigar o explorar el código) sin gastar apenas cuota de Claude.
 argument-hint: <pregunta>
+disable-model-invocation: true
 allowed-tools: mcp__plugin_relevo_team__status mcp__plugin_relevo_team__delegate
 ---
+
+> Herramientas de Relevo (llámalas con estos nombres exactos): `status` = `mcp__plugin_relevo_team__status` · `delegate` = `mcp__plugin_relevo_team__delegate`
 
 # Relevo · preguntar a Gemini
 

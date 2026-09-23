@@ -127,7 +127,7 @@ Claude hará lo siguiente:
 | `/relevo:estado` | Estado de Gemini, del tablero y de los trabajos pendientes |
 | `/relevo:iniciar` | Prepara el proyecto y comprueba que todo está conectado |
 
-Claude también puede usar Relevo por su cuenta en cualquier conversación, por ejemplo para pasarle a Gemini la lectura de un proyecto grande.
+Además, en cualquier conversación Claude puede usar las herramientas de Relevo por su cuenta, por ejemplo para pasarle a Gemini la lectura de un proyecto grande.
 
 ## Cómo trabajan por dentro
 

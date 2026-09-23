@@ -1,8 +1,11 @@
 ---
 name: iniciar
 description: Prepara Relevo en este proyecto y comprueba agy, la sesión de Google, los permisos y Obsidian. Úsalo cuando el usuario escriba /relevo:iniciar o pida configurar Relevo.
+disable-model-invocation: true
 allowed-tools: mcp__plugin_relevo_team__status mcp__plugin_relevo_team__board mcp__plugin_relevo_team__vault
 ---
+
+> Herramientas de Relevo (llámalas con estos nombres exactos): `status` = `mcp__plugin_relevo_team__status` · `board` = `mcp__plugin_relevo_team__board` · `vault` = `mcp__plugin_relevo_team__vault`
 
 # Relevo · iniciar
 

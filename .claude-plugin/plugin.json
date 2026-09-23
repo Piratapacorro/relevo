@@ -1,6 +1,6 @@
 {
   "name": "relevo",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Claude Code y Gemini (Antigravity CLI) trabajando como un equipo con tus propias suscripciones: planifican juntos, se reparten el trabajo, se revisan el código y comparten memoria (proyecto + Obsidian). Sin API keys.",
   "author": {
     "name": "Piratapacorro",

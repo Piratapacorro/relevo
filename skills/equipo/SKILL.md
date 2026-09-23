@@ -2,8 +2,11 @@
 name: equipo
 description: Claude y Gemini trabajan como equipo sobre un objetivo; planifican, se reparten el trabajo, se revisan y guardan memoria. Úsalo cuando el usuario escriba /relevo:equipo o pida trabajar en equipo con Gemini.
 argument-hint: <objetivo>
+disable-model-invocation: true
 allowed-tools: mcp__plugin_relevo_team__status mcp__plugin_relevo_team__delegate mcp__plugin_relevo_team__wait mcp__plugin_relevo_team__inspect mcp__plugin_relevo_team__integrate mcp__plugin_relevo_team__board mcp__plugin_relevo_team__vault
 ---
+
+> Herramientas de Relevo (llámalas con estos nombres exactos): `status` = `mcp__plugin_relevo_team__status` · `delegate` = `mcp__plugin_relevo_team__delegate` · `wait` = `mcp__plugin_relevo_team__wait` · `inspect` = `mcp__plugin_relevo_team__inspect` · `integrate` = `mcp__plugin_relevo_team__integrate` · `board` = `mcp__plugin_relevo_team__board` · `vault` = `mcp__plugin_relevo_team__vault`
 
 # Relevo · modo equipo
 

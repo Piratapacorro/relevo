@@ -2,8 +2,11 @@
 name: revisar
 description: Revisión cruzada. Gemini revisa de forma adversarial los cambios actuales (o un trabajo R-n) y Claude filtra el resultado.
 argument-hint: "[R-n | en qué fijarse]"
+disable-model-invocation: true
 allowed-tools: mcp__plugin_relevo_team__status mcp__plugin_relevo_team__delegate mcp__plugin_relevo_team__inspect
 ---
+
+> Herramientas de Relevo (llámalas con estos nombres exactos): `status` = `mcp__plugin_relevo_team__status` · `delegate` = `mcp__plugin_relevo_team__delegate` · `inspect` = `mcp__plugin_relevo_team__inspect`
 
 # Relevo · revisión cruzada
 

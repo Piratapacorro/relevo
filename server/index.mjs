@@ -3,7 +3,7 @@
 // Claude Code lo arranca desde el plugin; habla con agy mediante server/lib/*.
 import { Team, loadConfig } from './lib/team.mjs';
 
-const VERSION = '0.1.1';
+const VERSION = '0.1.2';
 const SUPPORTED = ['2025-11-25', '2025-06-18', '2025-03-26', '2024-11-05'];
 
 // stdout es exclusivo del protocolo: cualquier log va a stderr.
