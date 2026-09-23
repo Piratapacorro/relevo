@@ -42,6 +42,8 @@ process.stdin.on('end', () => {
     process.exit(1);
   }
   out({ event: 'init', conversation_id: conv, init: { cwd: process.cwd(), tools: [], permission_mode: 'default' } });
+  // Como el servidor MCP de WordPress del usuario real: deja su log en la carpeta de trabajo.
+  if (process.env.FAKE_AGY_MCPLOG) fs.writeFileSync(path.join(process.cwd(), 'wordpress-mcp.log'), '{"message":"started"}\n');
   if (mode === 'quota') {
     out({ step_update: { conversation_id: conv, step_index: 0, state: 'DONE', step_type: 'error_message', text_delta: 'API error (attempt 1): RESOURCE_EXHAUSTED (code 429): Individual quota reached. Resets in 2h39m52s.' } });
     setInterval(() => {}, 1000); // se queda reintentando como el agy real

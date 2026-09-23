@@ -1,13 +1,12 @@
 ---
 name: estado
-description: Estado del equipo Relevo (agy, cuota de Gemini, tablero y trabajos en curso).
-disable-model-invocation: true
+description: Estado del equipo Relevo (agy, sesión de Google, tablero y trabajos en curso). Úsalo cuando el usuario escriba /relevo:estado.
 allowed-tools: mcp__plugin_relevo_team__status mcp__plugin_relevo_team__board
 ---
 
 Llama a `status` y a `board action=read`. Resume al usuario en 10 líneas como máximo:
-- estado de agy;
-- cuota de Gemini;
+- estado de agy y de la sesión de Google;
+- límite de seguridad de Relevo (llamadas usadas / máximo por sesión). No lo presentes como la cuota de Google: esa no se puede consultar sin gastarla;
 - tareas abiertas;
 - trabajos pendientes de integrar;
 - qué harías a continuación.

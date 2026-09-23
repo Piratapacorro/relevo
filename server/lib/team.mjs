@@ -36,7 +36,10 @@ function pluginOptions() {
 }
 
 export function loadConfig(env = process.env) {
-  const o = pluginOptions();
+  const dataDir = clean(env.CLAUDE_PLUGIN_DATA) || path.join(os.homedir(), '.relevo');
+  // Preferencias guardadas desde Claude (p. ej. "mi bóveda está en…") y opciones de /plugin.
+  const saved = readJson(path.join(dataDir, 'config.json'), {}) || {};
+  const o = { ...saved, ...Object.fromEntries(Object.entries(pluginOptions()).filter(([, v]) => clean(v) !== '')) };
   const pick = (envKey, optKey) => clean(env[envKey]) || clean(o[optKey]);
   const num = (v, d, min, max) => {
     const n = Number(clean(v));
@@ -52,7 +55,7 @@ export function loadConfig(env = process.env) {
     model: pick('RELEVO_MODEL', 'model'),
     fallbackModel: clean(env.RELEVO_FALLBACK_MODEL) || 'auto',
     concurrency: num(env.RELEVO_CONCURRENCY, 2, 1, 4),
-    dataDir: clean(env.CLAUDE_PLUGIN_DATA) || path.join(os.homedir(), '.relevo'),
+    dataDir,
     projectDir: path.resolve(clean(env.RELEVO_PROJECT_DIR) || clean(env.CLAUDE_PROJECT_DIR) || process.cwd()),
   };
 }
@@ -220,12 +223,19 @@ export class Team {
       const c = await this.ctx();
       lines.push(`Proyecto: ${c.projectDir} · ${c.repo.isGit ? 'git' : 'sin git (Relevo usa un repositorio sombra fuera del proyecto)'}`);
       lines.push(c.board.exists() ? c.board.summary(8) : 'Tablero: sin inicializar (usa board action=init o /relevo:iniciar)');
-      lines.push(c.vault?.dir ? `Obsidian: ${c.vault.dir} (${c.vault.how})` : `Obsidian: ${c.vault?.error || 'no configurado (opción vault_path del plugin)'}`);
+      lines.push(
+        c.vault?.dir
+          ? `Obsidian: ${c.vault.dir} (${c.vault.how})`
+          : `Obsidian: ${c.vault?.error || 'no configurado. Si el usuario usa Obsidian, pregúntale la ruta de su bóveda y guárdala con vault action=configure path=<ruta>.'}`,
+      );
       for (const w of c.repo.warnings) lines.push(`⚠ ${w}`);
     } catch (err) {
       lines.push(`Proyecto: ⚠ ${err.message}`);
     }
-    lines.push(`Llamadas a Gemini en esta sesión: ${this.runs}/${this.config.maxRuns}`);
+    lines.push(
+      `Límite de seguridad de Relevo: ${this.runs}/${this.config.maxRuns} llamadas a Gemini en esta sesión. ` +
+        '(No es tu cuota de Google: esa no se puede consultar sin gastarla; si Google la agota, Relevo lo detecta y avisa.)',
+    );
     const running = [...this.pending.keys()];
     if (running.length) lines.push(`En curso: ${running.join(', ')}`);
     if (!this.hasConsent()) {
@@ -372,14 +382,26 @@ export class Team {
             },
           });
         };
-        let res = await exec(model);
+        // Algunos servidores MCP del usuario (p. ej. el de WordPress) escriben su log en la
+        // carpeta de trabajo de agy. En la carpeta real no queremos dejar esa basura.
+        const noiseBefore = meta.mode === 'worktree' ? null : mcpLogs(cwd);
+        let res;
+        try {
+          res = await exec(model);
+        } finally {
+          if (noiseBefore) removeNewMcpLogs(cwd, noiseBefore);
+        }
         meta.model = model || '(predeterminado de agy)';
         if (res.error?.kind === 'quota' && this.config.fallbackModel !== 'none' && this.runs < this.config.maxRuns) {
           const models = await this.getModels();
           const fb = this.config.fallbackModel === 'auto' ? pickFlash(models, model) : this.config.fallbackModel;
           if (fb && fb !== model) {
             meta.fallbackFrom = meta.model;
-            res = await exec(fb);
+            try {
+              res = await exec(fb);
+            } finally {
+              if (noiseBefore) removeNewMcpLogs(cwd, noiseBefore);
+            }
             meta.model = fb;
           }
         }
@@ -626,8 +648,22 @@ export class Team {
   }
 
   async vaultTool(args) {
+    if (args.action === 'configure') {
+      const p = clean(args.path).replace(/^["']|["']$/g, '');
+      if (!p) return { error: true, text: 'Indica path con la carpeta de la bóveda de Obsidian.' };
+      const abs = path.resolve(p);
+      if (!fs.existsSync(abs) || !fs.statSync(abs).isDirectory()) return { error: true, text: `No existe la carpeta ${abs}.` };
+      if (!fs.existsSync(path.join(abs, '.obsidian'))) {
+        return { error: true, text: `${abs} no parece una bóveda de Obsidian (no tiene carpeta .obsidian). Pide al usuario la carpeta raíz de la bóveda.` };
+      }
+      const cfgFile = path.join(this.config.dataDir, 'config.json');
+      writeJson(cfgFile, { ...(readJson(cfgFile, {}) || {}), vault_path: abs });
+      this.config.vaultPath = abs;
+      const c = await this.ctx();
+      return { text: `Bóveda guardada: ${abs}\nCarpeta usada para este proyecto: ${c.vault?.dir} (${c.vault?.how})` };
+    }
     const c = await this.ctx();
-    if (!c.vault) return { error: true, text: 'Obsidian no está configurado. Indica la carpeta de tu bóveda en la opción vault_path del plugin (/plugin → Relevo → configurar).' };
+    if (!c.vault) return { error: true, text: 'Obsidian no está configurado. Pregunta al usuario la ruta de su bóveda y guárdala con vault action=configure path=<ruta>.' };
     switch (args.action) {
       case 'search':
         return { text: vault.search(c.vault, args.query) };
@@ -640,6 +676,34 @@ export class Team {
       default:
         return { text: vault.brief(c.vault) };
     }
+  }
+}
+
+const MCP_LOG_RE = /mcp.*\.log$/i;
+
+function mcpLogs(dir) {
+  try {
+    return new Set(fs.readdirSync(dir).filter((f) => MCP_LOG_RE.test(f)));
+  } catch {
+    return new Set();
+  }
+}
+
+// Borra solo los logs de MCP que NO existían antes de lanzar agy. En Windows el servidor
+// MCP puede seguir vivo unos segundos tras salir agy y tener el archivo abierto: reintentamos.
+function removeNewMcpLogs(dir, before, attempt = 0) {
+  const pending = [];
+  for (const f of mcpLogs(dir)) {
+    if (before.has(f)) continue;
+    try {
+      fs.rmSync(path.join(dir, f), { force: true });
+    } catch {
+      pending.push(f);
+    }
+  }
+  if (pending.length && attempt < 8) {
+    const t = setTimeout(() => removeNewMcpLogs(dir, before, attempt + 1), 1000 * 2 ** Math.min(attempt, 5));
+    t.unref?.();
   }
 }
 

@@ -367,3 +367,59 @@ test('regresión: trabajo interrumpido (se cierra Claude Code) se recupera al in
   assert.match(d2.text, /R-2/);
   s2.close();
 });
+
+// ---------- v0.1.1 ----------
+
+test('los logs de MCP que agy deja en la carpeta real se limpian (y los previos no se tocan)', async () => {
+  const proj = tmp('mcplog');
+  fs.writeFileSync(path.join(proj, 'otro-mcp.log'), 'del usuario\n');
+  const s = await ready({ CLAUDE_PLUGIN_DATA: tmp('data'), CLAUDE_PROJECT_DIR: proj, FAKE_AGY_MCPLOG: '1' });
+  await s.call('status', { accept_risk: true, check: false });
+  const d = await s.call('delegate', { task: 'explora', role: 'explore' });
+  assert.equal(d.isError, false, d.text);
+  await new Promise((r) => setTimeout(r, 300));
+  assert.ok(!fs.existsSync(path.join(proj, 'wordpress-mcp.log')), 'el log nuevo se borra');
+  assert.ok(fs.existsSync(path.join(proj, 'otro-mcp.log')), 'un log que ya existía no se toca');
+  s.close();
+});
+
+test('la bóveda de Obsidian se configura hablando con Claude (vault configure)', async () => {
+  const vaultRoot = path.join(tmp('vault2'), 'Mi Bóveda');
+  fs.mkdirSync(path.join(vaultRoot, '.obsidian'), { recursive: true });
+  fs.mkdirSync(path.join(vaultRoot, 'Wiki'), { recursive: true });
+  const data = tmp('data');
+  const s = await ready({ CLAUDE_PLUGIN_DATA: data, CLAUDE_PROJECT_DIR: tmp('p') });
+  const bad = await s.call('vault', { action: 'configure', path: tmp('no-vault') });
+  assert.equal(bad.isError, true);
+  assert.match(bad.text, /no parece una bóveda/);
+  const ok = await s.call('vault', { action: 'configure', path: vaultRoot });
+  assert.equal(ok.isError, false, ok.text);
+  assert.match(ok.text, /Bóveda guardada/);
+  s.close();
+  // Persiste para las siguientes sesiones
+  const s2 = await ready({ CLAUDE_PLUGIN_DATA: data, CLAUDE_PROJECT_DIR: tmp('p') });
+  const st = await s2.call('status', { check: false });
+  assert.match(st.text, /Obsidian: .*Mi Bóveda/);
+  assert.match(st.text, /Límite de seguridad de Relevo: 0\/40/);
+  s2.close();
+});
+
+test('instalador: añade Relevo a settings.json sin tocar lo demás y con copia de seguridad', () => {
+  const cfg = tmp('cfg');
+  const original = { theme: 'dark', enabledPlugins: { 'otro@mk': true }, permissions: { allow: ['Bash(ls)'] } };
+  fs.writeFileSync(path.join(cfg, 'settings.json'), JSON.stringify(original));
+  const out = execFileSync(process.execPath, [path.join(here, '..', 'install.cjs')], { env: { ...process.env, CLAUDE_CONFIG_DIR: cfg }, encoding: 'utf8' });
+  assert.match(out, /Relevo activado/);
+  const s = JSON.parse(fs.readFileSync(path.join(cfg, 'settings.json'), 'utf8'));
+  assert.deepEqual(s.extraKnownMarketplaces.relevo, { source: { source: 'github', repo: 'Piratapacorro/relevo' } });
+  assert.equal(s.enabledPlugins['relevo@relevo'], true);
+  assert.equal(s.enabledPlugins['otro@mk'], true);
+  assert.equal(s.theme, 'dark');
+  assert.deepEqual(s.permissions, original.permissions);
+  assert.ok(fs.readdirSync(cfg).some((f) => f.startsWith('settings.json.bak-relevo-')), 'hay copia de seguridad');
+  // settings.json corrupto: no lo pisa
+  const cfg2 = tmp('cfg2');
+  fs.writeFileSync(path.join(cfg2, 'settings.json'), '{ esto no es json');
+  assert.throws(() => execFileSync(process.execPath, [path.join(here, '..', 'install.cjs')], { env: { ...process.env, CLAUDE_CONFIG_DIR: cfg2 }, stdio: 'pipe' }));
+  assert.equal(fs.readFileSync(path.join(cfg2, 'settings.json'), 'utf8'), '{ esto no es json');
+});

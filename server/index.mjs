@@ -3,7 +3,7 @@
 // Claude Code lo arranca desde el plugin; habla con agy mediante server/lib/*.
 import { Team, loadConfig } from './lib/team.mjs';
 
-const VERSION = '0.1.0';
+const VERSION = '0.1.1';
 const SUPPORTED = ['2025-11-25', '2025-06-18', '2025-03-26', '2024-11-05'];
 
 // stdout es exclusivo del protocolo: cualquier log va a stderr.
@@ -103,11 +103,12 @@ const TOOLS = [
   },
   {
     name: 'vault',
-    description: 'Bóveda de Obsidian del usuario: brief (notas recientes del proyecto), search (buscar texto), save (guardar nota en Wiki/Output/Raw con frontmatter y [[wikilinks]]).',
+    description: 'Bóveda de Obsidian del usuario: configure (guardar la ruta de la bóveda que te diga el usuario), brief (notas recientes del proyecto), search (buscar texto), save (guardar nota en Wiki/Output/Raw con frontmatter y [[wikilinks]]).',
     inputSchema: {
       type: 'object',
       properties: {
-        action: S('string', 'brief | search | save', { enum: ['brief', 'search', 'save'] }),
+        action: S('string', 'configure | brief | search | save', { enum: ['configure', 'brief', 'search', 'save'] }),
+        path: S('string', 'Con configure: carpeta raíz de la bóveda de Obsidian (la que contiene .obsidian).'),
         query: S('string', 'Texto a buscar.'),
         title: S('string', 'Título de la nota.'),
         content: S('string', 'Contenido Markdown de la nota (usa [[wikilinks]]).'),

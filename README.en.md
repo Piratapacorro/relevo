@@ -5,67 +5,96 @@
 Relevo ("relay" in Spanish) is a free, open-source [Claude Code](https://code.claude.com) plugin. It makes Claude the tech lead of a two-member team. The other member is Gemini, running through Google's official [Antigravity CLI](https://antigravity.google/docs/cli/) (`agy`).
 
 - **They plan together.** Gemini drafts a plan, Claude critiques it, and Claude decides the final plan.
-- **They split the work by specialty.** Gemini handles the volume (exploring code, implementing, tests, docs, research). Claude takes the parts that need judgment.
-- **They review each other.** Claude reviews Gemini's diffs, and Gemini adversarially reviews Claude's code.
-- **They share memory.** A team board and memory live in the project, alongside Claude's own memory and your Obsidian vault.
+- **They split the work.** Gemini handles the volume: exploring code, implementing, tests, docs and research. Claude takes the parts that need judgment.
+- **They review each other.** Claude reviews Gemini's diffs before applying them, and Gemini adversarially reviews Claude's code.
+- **They share memory.** A team board and memory live in the project, alongside Claude's own memory and, optionally, your Obsidian vault.
 
-No API keys: each person uses **their own** Claude Pro/Max and Google AI Pro/Ultra by signing in to the official tools.
+**Why:** Claude usage runs out fast. With Relevo, the heavy lifting runs on your Google subscription, and Claude spends its quota on decisions and reviews.
 
 > [Español](README.md) · English
 
-## Why
+## What do you need to connect?
 
-Claude usage runs out fast. With Relevo, Gemini does the heavy lifting on your Google subscription: reading half the repo, writing boilerplate, running tests. Claude receives compact reports and spends its quota on decisions and reviews.
+| | What to do |
+|---|---|
+| **Claude** | **Nothing.** Relevo is a plugin: it runs **inside** your Claude Code (desktop app or terminal), which already uses your Claude Pro/Max account. |
+| **Gemini** | Install the Antigravity CLI (`agy`) and **sign in once** with your Google AI Pro/Ultra account. If you already use the Antigravity app with that account, you are usually signed in already. |
 
-## How it works
+No API keys and no passwords to paste anywhere. Each tool uses **your** official session, and Relevo never sees your credentials.
 
-- **Isolated copy by default.** Gemini works in a `git worktree` outside your project. Nothing reaches your code until Claude reviews the diff and integrates it.
-  - Projects **without git** get a "shadow" repository stored outside your folder, so no `.git` ever appears in your project.
-  - Everything can be undone.
-- **No credentials handled.** Relevo only runs the official `agy` binary with the session you signed in to yourself. It never reads, stores or forwards tokens.
-- **Zero dependencies.** Pure Node.js; runs on **Windows (no WSL), macOS and Linux**.
+## Install (5 minutes)
 
-## Requirements
+### 1. Requirements
 
-- Claude Code (recent; tested with 2.1.275), signed in with Claude Pro or Max
-- Node.js 18 or later
-- git
-- `agy` 1.2.6 or later, signed in with Google AI Pro or Ultra
+You need Node.js 18 or later and git. Check them with `node -v` and `git --version`.
 
-## Install
+### 2. Connect Gemini
 
-**1. Install `agy`.**
-
-```bash
-# macOS / Linux
-curl -fsSL https://antigravity.google/cli/install.sh | bash
-```
+**a) Install `agy`.**
 
 ```powershell
 # Windows (PowerShell)
 irm https://antigravity.google/cli/install.ps1 | iex
 ```
 
-**2. Sign in to `agy`.** Run `agy` once in a new terminal and sign in with your Google account in the browser that opens.
+```bash
+# macOS / Linux
+curl -fsSL https://antigravity.google/cli/install.sh | bash
+```
 
-**3. Install Relevo in Claude Code.**
+**b) Sign in.** Open a **new** terminal, run `agy` and sign in with Google in the browser that opens. Exit `agy` with `/exit`.
+
+### 3. Install Relevo
+
+**Option A · Recommended.** Run this one command in a terminal. It works for both the desktop app and the terminal.
+
+```powershell
+# Windows (PowerShell)
+irm https://raw.githubusercontent.com/Piratapacorro/relevo/main/install.cjs | node
+```
+
+```bash
+# macOS / Linux
+curl -fsSL https://raw.githubusercontent.com/Piratapacorro/relevo/main/install.cjs | node
+```
+
+**Option B.** If you use Claude Code in the terminal, run this inside Claude Code:
 
 ```
 /plugin marketplace add Piratapacorro/relevo
 /plugin install relevo@relevo
 ```
 
-**4. Set up your project.** Run `/relevo:iniciar`. The first time, it walks you through the Google terms notice below and asks you to accept it.
+`/plugin` is not available in the desktop app, so desktop users should use option A.
+
+### 4. Restart and set up your project
+
+1. Restart Claude (the app or the CLI) so it downloads Relevo.
+2. Open your project.
+3. Run `/relevo:iniciar`. It checks the connection, asks you to accept the Google terms notice below (first time only), sets up the project and asks about Obsidian.
+
+### 5. Work
+
+```
+/relevo:equipo add a contact form with validation and tests
+```
 
 ## Commands
 
 | Command | What it does |
 |---|---|
-| `/relevo:equipo <goal>` | Full autonomous flow: context → debated plan → split work → cross review → tests → memory |
-| `/relevo:preguntar <question>` | Quick question to Gemini (research or codebase exploration) that barely touches your Claude quota |
+| `/relevo:equipo <goal>` | Full autonomous flow: context → plan → split work → cross review → tests → memory |
+| `/relevo:preguntar <question>` | Quick question to Gemini (about your code, or research) that barely touches your Claude quota |
 | `/relevo:revisar [R-n]` | Gemini adversarially reviews your current changes (or a given job), and Claude filters out false positives |
-| `/relevo:estado` | Status of `agy`, the board and pending jobs |
-| `/relevo:iniciar` | Set up the project and check that everything is ready |
+| `/relevo:estado` | Status of Gemini, the board and pending jobs |
+| `/relevo:iniciar` | Set up the project and check that everything is connected |
+
+## How it works
+
+- **Isolated copy.** Gemini works in an isolated copy of your project (a `git worktree`). Nothing reaches your code until Claude reviews the diff and integrates it.
+- **Projects without git** use a shadow repository stored outside your folder, so no `.git` ever appears in your project.
+- **Everything can be undone.**
+- **Zero dependencies.** Pure Node.js; runs on Windows (no WSL), macOS and Linux.
 
 ## ⚠️ Terms of service
 
@@ -76,6 +105,15 @@ irm https://antigravity.google/cli/install.ps1 | iex
 - **Risk-free alternative:** configure `agy` with a Google AI Studio API key.
 
 Relevo is not affiliated with Anthropic or Google. Claude, Gemini and Antigravity are trademarks of their respective owners.
+
+## Troubleshooting
+
+| Symptom | Fix |
+|---|---|
+| The `/relevo:...` commands don't show up | Restart Claude. Plugins load at startup |
+| "`/plugin` is not available" | You are in the desktop app: install with option A |
+| Windows says `agy` is not recognized | Open a new terminal, or run `& "$env:LOCALAPPDATA\agy\bin\agy.exe"` |
+| "Sesión de agy: NO iniciada" | Run `agy` in a terminal and sign in with Google |
 
 ## License
 
