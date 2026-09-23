@@ -51,7 +51,7 @@ irm https://antigravity.google/cli/install.ps1 | iex
 **3. Install Relevo in Claude Code.**
 
 ```
-/plugin marketplace add piratapacorro/relevo
+/plugin marketplace add Piratapacorro/relevo
 /plugin install relevo@relevo
 ```
 

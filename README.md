@@ -66,7 +66,7 @@ Después ejecuta `agy` en una terminal nueva: se abre el navegador para entrar c
 **2. Instala Relevo en Claude Code.**
 
 ```
-/plugin marketplace add piratapacorro/relevo
+/plugin marketplace add Piratapacorro/relevo
 /plugin install relevo@relevo
 ```
 

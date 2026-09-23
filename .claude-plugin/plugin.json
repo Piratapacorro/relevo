@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "description": "Claude Code y Gemini (Antigravity CLI) trabajando como un equipo con tus propias suscripciones: planifican juntos, se reparten el trabajo, se revisan el código y comparten memoria (proyecto + Obsidian). Sin API keys.",
   "author": {
-    "name": "piratapacorro",
-    "url": "https://github.com/piratapacorro"
+    "name": "Piratapacorro",
+    "url": "https://github.com/Piratapacorro"
   },
   "license": "MIT",
   "keywords": [
@@ -60,6 +60,6 @@
       "default": ""
     }
   },
-  "homepage": "https://github.com/piratapacorro/relevo",
-  "repository": "https://github.com/piratapacorro/relevo"
+  "homepage": "https://github.com/Piratapacorro/relevo",
+  "repository": "https://github.com/Piratapacorro/relevo"
 }
