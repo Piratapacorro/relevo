@@ -1,0 +1,15 @@
+{
+  "name": "relevo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Plugin de Claude Code: Claude + Gemini (Antigravity CLI) como un equipo, con tus propias suscripciones.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test --test-concurrency=1 test/relevo.test.mjs",
+    "validate": "claude plugin validate ."
+  }
+}

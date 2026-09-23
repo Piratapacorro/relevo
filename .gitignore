@@ -1,0 +1,5 @@
+node_modules/
+.relevo/jobs/
+*.log
+.DS_Store
+Thumbs.db

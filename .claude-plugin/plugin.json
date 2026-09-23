@@ -1,0 +1,65 @@
+{
+  "name": "relevo",
+  "version": "0.1.0",
+  "description": "Claude Code y Gemini (Antigravity CLI) trabajando como un equipo con tus propias suscripciones: planifican juntos, se reparten el trabajo, se revisan el código y comparten memoria (proyecto + Obsidian). Sin API keys.",
+  "author": {
+    "name": "piratapacorro",
+    "url": "https://github.com/piratapacorro"
+  },
+  "license": "MIT",
+  "keywords": [
+    "equipo",
+    "multi-agente",
+    "antigravity",
+    "gemini",
+    "agy",
+    "code-review",
+    "obsidian",
+    "worktree"
+  ],
+  "mcpServers": "./mcp-servers.json",
+  "userConfig": {
+    "agy_path": {
+      "type": "string",
+      "title": "Ruta de agy (opcional)",
+      "description": "Déjalo vacío para detectarlo solo. Solo si instalaste la Antigravity CLI en un sitio no estándar.",
+      "default": ""
+    },
+    "vault_path": {
+      "type": "directory",
+      "title": "Bóveda de Obsidian (opcional)",
+      "description": "Carpeta de tu bóveda. El equipo leerá las notas del proyecto y guardará allí lo aprendido.",
+      "default": ""
+    },
+    "permissions": {
+      "type": "string",
+      "title": "Permisos de Gemini",
+      "description": "Escribe completo o solo-archivos. completo: Gemini puede ejecutar comandos (tests, builds) y por defecto trabaja en una copia aislada. solo-archivos: solo lee y edita archivos.",
+      "default": "completo"
+    },
+    "max_runs": {
+      "type": "number",
+      "title": "Máximo de llamadas a Gemini por sesión",
+      "description": "Protege tu cuota y tu cuenta de Google frente a bucles.",
+      "default": 40,
+      "min": 1,
+      "max": 500
+    },
+    "timeout_min": {
+      "type": "number",
+      "title": "Minutos máximos por tarea de Gemini",
+      "description": "Si agy no termina en este tiempo, Relevo lo detiene.",
+      "default": 20,
+      "min": 2,
+      "max": 180
+    },
+    "model": {
+      "type": "string",
+      "title": "Modelo de Gemini (opcional)",
+      "description": "Slug de agy (ver `agy models`). Vacío = el predeterminado de agy.",
+      "default": ""
+    }
+  },
+  "homepage": "https://github.com/piratapacorro/relevo",
+  "repository": "https://github.com/piratapacorro/relevo"
+}

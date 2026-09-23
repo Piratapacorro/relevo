@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "team": {
+      "command": "node",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/server/index.mjs"
+      ],
+      "timeout": 5400000
+    }
+  }
+}
