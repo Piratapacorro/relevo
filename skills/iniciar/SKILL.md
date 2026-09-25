@@ -12,11 +12,11 @@ allowed-tools: mcp__plugin_relevo_team__status mcp__plugin_relevo_team__board mc
 Guía al usuario paso a paso, en lenguaje llano y sin jerga. Claude ya está conectado: es esta misma sesión con su cuenta. Lo único que hay que conectar es Gemini (agy).
 
 1. Llama a `status` y resume en pocas líneas qué está listo y qué falta.
-   - **agy no instalado:** dale el comando de instalación exacto que muestra `status`.
-     - Después tiene que abrir una terminal NUEVA, escribir `agy` y entrar con su cuenta de Google (AI Pro o Ultra) en el navegador que se abre.
-     - Cuando vea el chat de agy, puede salir con `/exit`.
-     - Si ya usa la app de Antigravity con esa cuenta, normalmente ya tiene la sesión iniciada.
-   - **Sesión de agy no iniciada:** solo el paso de escribir `agy` en una terminal nueva e iniciar sesión.
+   - **agy no instalado o sin sesión:** lo más fácil es el instalador de Relevo, que instala lo que falte y le guía para entrar con Google. Dale la línea exacta que muestra `status` y dile dónde pegarla:
+     - Windows: en **PowerShell**.
+     - Mac/Linux: en la **Terminal**.
+
+     Si ya usa la app de Antigravity con esa cuenta, normalmente ya tiene la sesión iniciada.
    - Cuando diga que ya lo ha hecho, vuelve a llamar a `status` para comprobarlo.
 2. **Solo si `status` dice CONSENTIMIENTO PENDIENTE.** Si dice «ya aceptado», no preguntes nada y pasa al paso 3. Si está pendiente, explícale esto:
    - Relevo usa el agy oficial con su propia sesión y nunca toca contraseñas ni tokens.

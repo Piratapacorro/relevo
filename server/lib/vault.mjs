@@ -102,6 +102,34 @@ export function search(v, query, maxHits = 20) {
   return hits.length ? hits.join('\n') : `Sin resultados para "${q}".`;
 }
 
+/**
+ * Diario automático: una nota por proyecto y día en Wiki/, a la que Relevo añade cada
+ * trabajo integrado o descartado. No depende de que Claude se acuerde (ni gasta su cuota).
+ */
+export function appendLog(v, { projectName, entry }) {
+  if (!v?.dir) return null;
+  const d = new Date();
+  const day = d.toISOString().slice(0, 10);
+  const hhmm = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  const title = `Relevo - ${projectName} - ${day}`;
+  let folder = null;
+  try {
+    const found = fs.readdirSync(v.dir, { withFileTypes: true }).find((e) => e.isDirectory() && e.name.toLowerCase() === 'wiki');
+    folder = path.join(v.dir, found ? found.name : 'Wiki');
+  } catch {
+    folder = path.join(v.dir, 'Wiki');
+  }
+  ensureDir(folder);
+  const file = path.join(folder, `${safeFileName(title)}.md`);
+  if (!isInside(v.root, file)) return null;
+  if (!fs.existsSync(file)) {
+    const fm = ['---', `fecha: ${day}`, 'origen: relevo', `proyecto: "${String(projectName).replace(/"/g, "'")}"`, 'tags: [relevo, diario]', '---', ''];
+    fs.writeFileSync(file, `${fm.join('\n')}\n# ${title}\n\nDiario automático del equipo Claude + Gemini en **${projectName}**.\n`, 'utf8');
+  }
+  fs.appendFileSync(file, `\n## ${hhmm} · ${entry.trim()}\n`, 'utf8');
+  return path.relative(v.root, file).split(path.sep).join('/');
+}
+
 export function save(v, { title, content, kind = 'wiki', tags = [], projectName }) {
   if (!v?.dir) throw new Error(v?.error || 'Bóveda de Obsidian no configurada (userConfig vault_path).');
   const wanted = { wiki: 'Wiki', output: 'Output', raw: 'Raw' }[kind] || 'Wiki';

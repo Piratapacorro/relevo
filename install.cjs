@@ -15,9 +15,11 @@ const path = require('path');
 const { execFileSync } = require('child_process');
 
 const REPO = 'Piratapacorro/relevo';
-const green = (s) => `\x1b[32m${s}\x1b[0m`;
-const yellow = (s) => `\x1b[33m${s}\x1b[0m`;
-const bold = (s) => `\x1b[1m${s}\x1b[0m`;
+// Colores solo en una terminal de verdad: por una tubería saldrían códigos raros.
+const tty = !!process.stdout.isTTY;
+const green = (s) => (tty ? `\x1b[32m${s}\x1b[0m` : s);
+const yellow = (s) => (tty ? `\x1b[33m${s}\x1b[0m` : s);
+const bold = (s) => (tty ? `\x1b[1m${s}\x1b[0m` : s);
 
 function fail(msg) {
   console.error(`\n✖ ${msg}\n`);
@@ -33,7 +35,8 @@ fs.mkdirSync(configDir, { recursive: true });
 
 let settings = {};
 if (fs.existsSync(file)) {
-  const raw = fs.readFileSync(file, 'utf8');
+  // Bloc de notas y PowerShell 5.1 guardan a veces con BOM (carácter invisible al principio).
+  const raw = fs.readFileSync(file, 'utf8').replace(/^﻿/, '');
   try {
     settings = raw.trim() ? JSON.parse(raw) : {};
   } catch (e) {
@@ -52,6 +55,11 @@ const tmp = `${file}.relevo-tmp`;
 fs.writeFileSync(tmp, JSON.stringify(settings, null, 2) + '\n', 'utf8');
 fs.renameSync(tmp, file);
 
+if (process.env.RELEVO_QUIET) {
+  // Lo llaman install.ps1 / install.sh, que ya guían el resto de pasos.
+  console.log(`  [OK] Relevo activado en Claude Code (${file})`);
+  process.exit(0);
+}
 console.log(`\n${green('✔')} Relevo activado en Claude Code (${file}).`);
 
 // ¿Está la Antigravity CLI (agy)?

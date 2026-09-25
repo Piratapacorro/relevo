@@ -1,6 +1,6 @@
 {
   "name": "relevo",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "private": true,
   "description": "Plugin de Claude Code: Claude + Gemini (Antigravity CLI) como un equipo, con tus propias suscripciones.",
   "type": "module",

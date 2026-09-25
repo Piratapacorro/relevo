@@ -441,3 +441,47 @@ test('status: las consultas rápidas a agy no se lanzan desde la carpeta del pro
   assert.doesNotMatch(st.text, /CONSENTIMIENTO PENDIENTE/);
   s.close();
 });
+
+// ---------- v0.1.4 ----------
+
+test('Obsidian: cada trabajo integrado o descartado se anota solo en el diario del día', async () => {
+  const vaultRoot = path.join(tmp('vault3'), 'Bóveda');
+  fs.mkdirSync(path.join(vaultRoot, '.obsidian'), { recursive: true });
+  const proj = path.join(tmp('pp'), 'webdemo');
+  fs.mkdirSync(proj);
+  fs.mkdirSync(path.join(vaultRoot, 'webdemo', 'Wiki'), { recursive: true });
+  git(proj, 'init', '-q', '-b', 'main');
+  fs.writeFileSync(path.join(proj, 'a.txt'), 'a\n');
+  git(proj, 'add', '.');
+  git(proj, 'commit', '-q', '-m', 'init');
+  const s = await ready({ CLAUDE_PLUGIN_DATA: tmp('data'), CLAUDE_PROJECT_DIR: proj, RELEVO_VAULT_PATH: vaultRoot });
+  await s.call('status', { accept_risk: true, check: false });
+  await s.call('delegate', { task: 'CREA_ARCHIVO:uno.txt', title: 'Primer cambio' });
+  const m = await s.call('integrate', { job_id: 'R-1', action: 'merge' });
+  assert.match(m.text, /Anotado en Obsidian: webdemo\/Wiki\/Relevo - webdemo - \d{4}-\d{2}-\d{2}\.md/);
+  await s.call('delegate', { task: 'CREA_ARCHIVO:dos.txt', title: 'Segundo cambio' });
+  await s.call('integrate', { job_id: 'R-2', action: 'discard' });
+  const wiki = path.join(vaultRoot, 'webdemo', 'Wiki');
+  const notes = fs.readdirSync(wiki).filter((f) => f.startsWith('Relevo - webdemo'));
+  assert.equal(notes.length, 1, 'una sola nota por día');
+  const text = fs.readFileSync(path.join(wiki, notes[0]), 'utf8');
+  assert.match(text, /^---\nfecha:/);
+  assert.match(text, /R-1 · implementar · integrado/);
+  assert.match(text, /Primer cambio/);
+  assert.match(text, /uno\.txt/);
+  assert.match(text, /R-2 · implementar · descartado/);
+  s.close();
+});
+
+test('opciones del plugin leídas de un settings.json con BOM (Bloc de notas / PowerShell 5.1)', async () => {
+  const cfg = tmp('cfgbom');
+  const vaultRoot = tmp('vbom');
+  fs.mkdirSync(path.join(vaultRoot, '.obsidian'));
+  const settings = { pluginConfigs: { 'relevo@relevo': { options: { vault_path: vaultRoot, max_runs: 7 } } } };
+  fs.writeFileSync(path.join(cfg, 'settings.json'), '﻿' + JSON.stringify(settings));
+  const s = await ready({ CLAUDE_PLUGIN_DATA: tmp('data'), CLAUDE_PROJECT_DIR: tmp('p'), CLAUDE_CONFIG_DIR: cfg });
+  const st = await s.call('status', { check: false });
+  assert.match(st.text, /0\/7 llamadas/);
+  assert.ok(st.text.includes(`Obsidian: ${vaultRoot}`), 'usa la bóveda configurada en settings.json');
+  s.close();
+});

@@ -1,5 +1,17 @@
 # Cambios
 
+## 0.1.4 — 2026-09-25
+
+- **Instalación en un solo paso:** `install.ps1` (Windows) e `install.sh` (Mac/Linux).
+  - Comprueban Node.js y git; si faltan, los instalan (winget en Windows, Homebrew en Mac).
+  - Instalan la Antigravity CLI oficial y activan Relevo en Claude Code.
+  - Guían el inicio de sesión con Google.
+  - Preguntan antes de instalar nada.
+- **README:** instalación en 3 pasos (instalador → iniciar sesión → reiniciar Claude y `/relevo:iniciar`).
+- **Diario automático en Obsidian:** cada trabajo integrado o descartado queda anotado en «Relevo - <proyecto> - <fecha>», sin depender de Claude ni gastar su cuota.
+- **Corrección:** `settings.json` guardado con BOM (Bloc de notas / PowerShell 5.1) ya no rompe la instalación ni hace que se ignoren las opciones.
+- Probado con Claude Code 2.1.281: `/relevo:iniciar` y `/relevo:equipo` completos, y el instalador en equipos limpios.
+
 ## 0.1.3 — 2026-09-23
 
 - `status` dice explícitamente si el consentimiento ya está aceptado, y `/relevo:iniciar` y `/relevo:equipo` solo lo piden si falta (antes Claude podía volver a preguntarlo).

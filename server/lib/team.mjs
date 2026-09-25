@@ -212,7 +212,7 @@ export class Team {
           lines.push('Sesión de agy: iniciada ✔');
           lines.push(`Modelos Gemini: ${m.models.slice(0, 12).join(', ')}`);
         } else if (m.authRequired) {
-          lines.push('Sesión de agy: NO iniciada → abre una terminal, ejecuta `agy` e inicia sesión con tu cuenta de Google (se abre el navegador).');
+          lines.push(`Sesión de agy: NO iniciada → abre una terminal, ejecuta \`agy\` e inicia sesión con tu cuenta de Google (se abre el navegador). ${installHelp()}`);
         } else {
           lines.push(`Sesión de agy: no verificada (${m.raw.slice(0, 200)})`);
         }
@@ -619,7 +619,24 @@ export class Team {
     this.saveJob(c, meta);
     await cleanup();
     if (meta.board_task) c.board.upsertTask({ id: meta.board_task, status: action === 'merge' ? 'hecha' : 'pendiente' });
-    return { text: msg };
+    // Memoria en Obsidian automática: cada trabajo integrado o descartado queda en el diario del día.
+    let logged = null;
+    try {
+      const files = (meta.files || []).slice(0, 12).map((f) => f.path).join(', ');
+      const summary = (meta.report?.summary || '').replace(/\s+/g, ' ').trim().slice(0, 400);
+      logged = vault.appendLog(c.vault, {
+        projectName: c.projectName,
+        entry: [
+          `${meta.id} · ${ROLES[meta.role]?.label || meta.role} · ${action === 'merge' ? 'integrado' : 'descartado'}`,
+          '',
+          `- Tarea: ${meta.title}`,
+          files ? `- Archivos: ${files}${meta.shortstat ? ` (${meta.shortstat})` : ''}` : '',
+          summary ? `- Resumen de Gemini: ${summary}` : '',
+          meta.board_task ? `- Tablero: ${meta.board_task}` : '',
+        ].filter((l) => l !== null && l !== undefined && (l === '' || l.trim())).join('\n'),
+      });
+    } catch {}
+    return { text: logged ? `${msg}\nAnotado en Obsidian: ${logged}` : msg };
   }
 
   async board(args) {
@@ -735,7 +752,7 @@ export function compactLinks(text, roots = []) {
 
 export function installHelp() {
   if (process.platform === 'win32') {
-    return 'Instalar agy (PowerShell): irm https://antigravity.google/cli/install.ps1 | iex — después ejecuta `agy` una vez para iniciar sesión.';
+    return 'Solución fácil: en PowerShell ejecuta  irm https://raw.githubusercontent.com/Piratapacorro/relevo/main/install.ps1 | iex  (instala agy y te guía para iniciar sesión con Google).';
   }
-  return 'Instalar agy (macOS/Linux): curl -fsSL https://antigravity.google/cli/install.sh | bash — después ejecuta `agy` una vez para iniciar sesión.';
+  return 'Solución fácil: en la Terminal ejecuta  curl -fsSL https://raw.githubusercontent.com/Piratapacorro/relevo/main/install.sh | bash  (instala agy y te guía para iniciar sesión con Google).';
 }

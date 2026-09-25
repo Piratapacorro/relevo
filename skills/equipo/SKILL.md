@@ -55,9 +55,9 @@ Eres el **líder técnico** de un equipo de dos: tú (Claude) y Gemini, al que l
 5. **Verificación.** Llama a `delegate role=test` para que ejecute tests y build y corrija lo evidente. Si los permisos son solo-archivos, ejecuta tú los comandos que Gemini indique.
 6. **Cierre y memoria.**
    - Guarda de 1 a 3 aprendizajes duraderos (comandos, convenciones, trampas) con `board action=learn`. Si no hay nada nuevo, sáltatelo.
-   - **Obsidian (obligatorio si está configurado):** guarda siempre una nota breve de la sesión con `vault action=save kind=wiki`:
+   - **Obsidian:** Relevo ya anota solo cada trabajo integrado o descartado en el diario del día («Relevo - <proyecto> - <fecha>»). Tú añade una nota con `vault action=save kind=wiki` únicamente si hubo decisiones de diseño, pendientes o contexto que no sean obvios:
      - título: «Relevo — <tema>»;
-     - contenido: qué se pidió, qué se hizo, decisiones y pendientes, con `[[wikilinks]]` a las notas relacionadas.
+     - contenido: con `[[wikilinks]]` a las notas relacionadas.
      - Los entregables finales van con `kind=output`.
    - Si tu memoria automática está activa, guarda allí lo que te sirva en otras sesiones.
    - Cierra con un resumen al usuario de 10 líneas como máximo: qué se hizo, qué queda y decisiones importantes.
