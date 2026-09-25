@@ -1,5 +1,15 @@
 # Cambios
 
+## 0.1.5 — 2026-09-25
+
+- **Instalador de Linux:** ahora instala lo que falte (curl, git, Node.js) con apt, dnf, yum, pacman, zypper o apk, usando sudo solo si hace falta. Antes se paraba si faltaba Node.js (Ubuntu recién instalado).
+- **Node.js antiguo** (p. ej. Ubuntu 22.04 trae la v12): ofrece Node.js LTS desde NodeSource.
+- **Claude Code:** los instaladores comprueban que esté (app o terminal) y, si falta, ofrecen el instalador oficial de Anthropic.
+- **PATH:** `~/.local/bin` se añade a las terminales nuevas si hace falta (ahí instalan agy y Claude Code).
+- **Sin curl:** alternativa con `wget`, documentada en el README.
+- **Corrección:** detección de la app de escritorio de Claude en `install.ps1`.
+- Probado con un Linux y un Mac simulados (5 escenarios) y en Windows real.
+
 ## 0.1.4 — 2026-09-25
 
 - **Instalación en un solo paso:** `install.ps1` (Windows) e `install.sh` (Mac/Linux).

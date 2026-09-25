@@ -42,13 +42,16 @@ irm https://raw.githubusercontent.com/Piratapacorro/relevo/main/install.ps1 | ie
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Piratapacorro/relevo/main/install.sh | bash
 ```
+
+> No `curl` on your Linux? Use `wget -qO- https://raw.githubusercontent.com/Piratapacorro/relevo/main/install.sh | bash`, or first run `sudo apt install curl`.
 </details>
 
 The installer checks your machine and **asks before installing anything**:
-1. It checks for Node.js and git.
-2. It installs Google's official Antigravity CLI (`agy`) if needed.
-3. It enables Relevo in Claude Code, after backing up your settings.
-4. It checks that `agy` is signed in to your Google account.
+1. It checks for curl, git and Node.js 18+, and installs them if missing. It uses winget on Windows, apt/dnf/pacman on Linux and Homebrew on Mac.
+2. It installs Claude Code with Anthropic's official installer, if you don't have it.
+3. It installs Google's official Antigravity CLI (`agy`), if needed.
+4. It enables Relevo in Claude Code, after backing up your settings.
+5. It checks that `agy` is signed in to your Google account.
 
 The installer messages are in Spanish.
 

@@ -4,9 +4,10 @@
 #
 # Comprueba lo que hace falta y PREGUNTA antes de instalar nada:
 #   1. Node.js 18+ y git   (con winget, si faltan)
-#   2. Antigravity CLI (agy), con el instalador oficial de Google
-#   3. Relevo dentro de Claude Code (añade el plugin a ~/.claude/settings.json, con copia de seguridad)
-#   4. Inicio de sesión de agy con tu cuenta de Google (solo si hace falta)
+#   2. Claude Code          (instalador oficial de Anthropic, si no tienes ni la app ni la terminal)
+#   3. Antigravity CLI (agy), con el instalador oficial de Google
+#   4. Relevo dentro de Claude Code (añade el plugin a ~/.claude/settings.json, con copia de seguridad)
+#   5. Inicio de sesión de agy con tu cuenta de Google (solo si hace falta)
 # Nunca pide ni guarda contraseñas: el inicio de sesión lo haces tú en el navegador.
 
 & {
@@ -53,7 +54,7 @@
   Write-Host '  -------------------------------------------'
 
   # 1. Node.js y git ---------------------------------------------------------
-  Titulo '1/4  Node.js y git'
+  Titulo '1/5  Node.js y git'
   $node = Tiene 'node'
   if ($node) {
     $v = (& node -v).TrimStart('v')
@@ -78,8 +79,28 @@
     Ok 'git instalado'
   }
 
-  # 2. Antigravity CLI (agy) ---------------------------------------------------
-  Titulo '2/4  Gemini: Antigravity CLI (agy)'
+  # 2. Claude Code ------------------------------------------------------------
+  Titulo '2/5  Claude Code'
+  $claudeNuevo = $false
+  $appClaude = Test-Path (Join-Path $env:APPDATA 'Claude\claude-code')
+  $cliClaude = (Tiene 'claude') -or (Test-Path (Join-Path $env:USERPROFILE '.local\bin\claude.exe'))
+  if ($fake -contains 'claude') { $appClaude = $false; $cliClaude = $false }
+  if ($appClaude) { Ok 'App de escritorio de Claude encontrada' }
+  elseif ($cliClaude) { Ok 'Claude Code encontrado' }
+  else {
+    Aviso 'No encuentro Claude Code en este ordenador (ni la app de Claude ni la terminal).'
+    if (Pregunta '¿Instalo Claude Code con el instalador oficial de Anthropic?') {
+      Ejecuta 'instalador oficial de Claude Code' { powershell -NoProfile -ExecutionPolicy Bypass -Command 'irm https://claude.ai/install.ps1 | iex' | Out-Host }
+      Recarga-Path
+      $claudeNuevo = $true
+      Ok 'Claude Code instalado'
+    } else {
+      Aviso 'Sigo sin Claude Code: puedes instalar la app de Claude (claude.ai/download) o Claude Code para la terminal cuando quieras.'
+    }
+  }
+
+  # 3. Antigravity CLI (agy) ---------------------------------------------------
+  Titulo '3/5  Gemini: Antigravity CLI (agy)'
   $agy = Join-Path $env:LOCALAPPDATA 'agy\bin\agy.exe'
   if ($fake -contains 'agy' -or -not (Test-Path $agy)) {
     $g = Get-Command agy.exe -ErrorAction SilentlyContinue
@@ -96,8 +117,8 @@
   }
   Ok "agy en $agy"
 
-  # 3. Relevo en Claude Code -----------------------------------------------------
-  Titulo '3/4  Relevo en Claude Code'
+  # 4. Relevo en Claude Code -----------------------------------------------------
+  Titulo '4/5  Relevo en Claude Code'
   $tmp = Join-Path $env:TEMP 'relevo-install.cjs'
   if ($env:RELEVO_SOURCE) { Copy-Item (Join-Path $env:RELEVO_SOURCE 'install.cjs') $tmp -Force }  # pruebas locales
   else {
@@ -117,8 +138,8 @@
   Remove-Item Env:RELEVO_QUIET -ErrorAction SilentlyContinue
   if ($codigo -ne 0) { Fallo 'No se pudo activar Relevo en Claude Code (mira el mensaje de arriba).'; return }
 
-  # 4. Sesión de Google en agy ----------------------------------------------------
-  Titulo '4/4  Tu cuenta de Google en agy'
+  # 5. Sesión de Google en agy ----------------------------------------------------
+  Titulo '5/5  Tu cuenta de Google en agy'
   $sesion = $false
   if (-not $dry -and (Test-Path $agy)) {
     Push-Location $env:TEMP
@@ -131,7 +152,7 @@
     Aviso 'Falta iniciar sesión en agy con tu cuenta de Google (AI Pro o Ultra).'
     Write-Host '       Se abrirá agy y tu navegador: entra con tu cuenta de Google.'
     Write-Host '       Cuando en esta ventana aparezca el chat de agy, escribe /exit y pulsa Enter.'
-    if (Pregunta '¿Abrimos agy para iniciar sesión ahora?') {
+    if (-not $env:RELEVO_NO_LOGIN -and (Pregunta '¿Abrimos agy para iniciar sesión ahora?')) {
       Ejecuta 'abrir agy para iniciar sesión' {
         Push-Location $env:TEMP
         try { & $agy } finally { Pop-Location }
@@ -143,7 +164,8 @@
 
   Write-Host ''
   Write-Host '  ¡Listo! Ahora:' -ForegroundColor Green
-  Write-Host '    1. Cierra y vuelve a abrir la app de Claude (o Claude Code en la terminal).'
+  if ($claudeNuevo) { Write-Host '    1. Abre una terminal NUEVA, escribe  claude  y entra con tu cuenta de Claude (Pro o Max).' }
+  else { Write-Host '    1. Cierra y vuelve a abrir la app de Claude (o Claude Code en la terminal).' }
   Write-Host '    2. Abre una sesión en la carpeta de tu proyecto y escribe:  /relevo:iniciar'
   Write-Host '    3. Después pide trabajo al equipo, por ejemplo:  /relevo:equipo añade un formulario de contacto'
   Write-Host ''

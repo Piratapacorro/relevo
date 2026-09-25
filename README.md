@@ -44,25 +44,34 @@ irm https://raw.githubusercontent.com/Piratapacorro/relevo/main/install.ps1 | ie
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Piratapacorro/relevo/main/install.sh | bash
 ```
+
+> Si tu Linux responde `curl: orden no encontrada`, usa esta otra línea:
+> ```bash
+> wget -qO- https://raw.githubusercontent.com/Piratapacorro/relevo/main/install.sh | bash
+> ```
+> Si tampoco tienes `wget`, instala curl primero con `sudo apt install curl`.
 </details>
 
 El instalador revisa tu equipo y **te pregunta antes de instalar nada**:
 
 | Paso | Qué hace |
 |---|---|
-| 1/4 | Comprueba Node.js y git. Si faltan, los instala (en Windows con winget; en Mac con Homebrew) |
-| 2/4 | Instala la Antigravity CLI oficial de Google (`agy`) si no la tienes |
-| 3/4 | Activa Relevo en Claude Code (guarda antes una copia de tu configuración) |
-| 4/4 | Comprueba que `agy` tiene tu sesión de Google iniciada |
+| 1/5 | Comprueba curl, git y Node.js 18+. Si faltan, los instala con el gestor de tu sistema (winget en Windows; apt, dnf, pacman… en Linux; Homebrew en Mac). En Linux, `sudo` te pedirá la contraseña de tu ordenador |
+| 2/5 | Si no tienes Claude Code (ni la app ni la terminal), lo instala con el instalador oficial de Anthropic |
+| 3/5 | Instala la Antigravity CLI oficial de Google (`agy`) si no la tienes |
+| 4/5 | Activa Relevo en Claude Code (guarda antes una copia de tu configuración) |
+| 5/5 | Comprueba que `agy` tiene tu sesión de Google iniciada |
 
-### Paso 2 · Inicia sesión en Google (solo la primera vez)
+### Paso 2 · Inicia sesión (solo la primera vez)
 
-Si en el paso 4/4 el instalador te lo pide:
+**En Google (Gemini).** Si en el paso 5/5 el instalador te lo pide:
 1. Se abrirá tu navegador: entra con tu cuenta de **Google AI Pro/Ultra** y acepta.
 2. Vuelve a la ventana del instalador.
 3. Cuando veas el chat de `agy`, escribe `/exit` y pulsa <kbd>Enter</kbd>.
 
 > Si ya usas la app de Antigravity con esa cuenta, este paso normalmente no hace falta.
+
+**En Claude**, solo si el instalador acaba de instalarte Claude Code: abre una terminal **nueva**, escribe `claude` y entra con tu cuenta **Claude Pro o Max**.
 
 ### Paso 3 · Empieza a usarlo
 
@@ -162,6 +171,7 @@ Relevo no está afiliado a Anthropic ni a Google. Claude, Gemini y Antigravity s
 |---|---|
 | No aparecen los comandos `/relevo:...` | Cierra y vuelve a abrir la app de Claude. Los plugins se cargan al arrancar |
 | El instalador dice que falta Node.js o git y no puede instalarlo | Instálalos a mano desde [nodejs.org](https://nodejs.org) (LTS) y [git-scm.com](https://git-scm.com), cierra la terminal y vuelve a ejecutar el instalador |
+| Linux: `claude` o `agy` «no encontrado» justo después de instalar | Abre una terminal nueva (el instalador los añade a tu `PATH` en `~/.bashrc`) |
 | «Sesión de agy: NO iniciada» | Vuelve a ejecutar el instalador y acepta iniciar sesión, o escribe `agy` en una terminal nueva |
 | `agy` tarda en responder | Cada vez que se ejecuta, `agy` arranca los servidores MCP que tengas en Antigravity. Desactiva los que no uses |
 | Quiero ver qué hizo Gemini | Mira `.relevo/jobs/R-n/`: el encargo, la respuesta y todos los pasos |
